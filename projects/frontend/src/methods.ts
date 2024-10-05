@@ -18,7 +18,7 @@ export function create(
 
       assetId = BigInt(assetCreate.confirmation.assetIndex!)
     }
-    const createResult = await dmClient.create.createApplication({ assetId: assetBeingSold, unitaryPrice })
+    const createResult = await dmClient.create.createApplication({ assetId, unitaryPrice })
     const mbrTxn = await algorand.transactions.payment({
       sender,
       receiver: createResult.appAddress,
@@ -48,6 +48,7 @@ export function buy(
       sender,
       receiver: appAddress,
       amount: algokit.microAlgos(Number(quantity * unitaryPrice)),
+      extraFee: algokit.algos(0.001),
     })
 
     await dmClient.buy({ buyerTxn, quantity })
@@ -60,7 +61,7 @@ export function buy(
 
 export function deleteApp(algorand: algokit.AlgorandClient, dmClient: DigitalMarketplaceClient, setAppId: (idi: number) => void) {
   return async () => {
-    await dmClient.delete.deleteApplication({})
+    await dmClient.delete.deleteApplication({}, { sendParams: { fee: algokit.algos(0.003) } })
     setAppId(0)
   }
 }
